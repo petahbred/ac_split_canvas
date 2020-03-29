@@ -1,6 +1,19 @@
 import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import Container from '@material-ui/core/Container';
+import Paper from '@material-ui/core/Paper';
+
+import Header from 'components/header';
+import Form from 'components/form';
 
 import { splitImage } from './utils/image';
+
+const styles = theme => ({
+  content: {
+    marginTop: theme.spacing(10),
+    padding: '10px 15px'
+  }
+});
 
 class App extends React.Component {
   constructor(props) {
@@ -32,12 +45,12 @@ class App extends React.Component {
     });
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
-    const { file } = this.state;
+  handleSubmit(file) {
     if (!file) {
       return;
     }
+
+    console.log({ file });
     const reader = new FileReader();
     reader.addEventListener('load', () => {
       splitImage(reader.result);
@@ -46,66 +59,19 @@ class App extends React.Component {
   }
 
   render() {
-    const { outputType, tileNumber } = this.state;
+    const { classes } = this.props;
+    const { outputType, tileNumber, file } = this.state;
     return (
-      <div className='app container'>
-        <header>
-          <h1>AC Image Splitter</h1>
-        </header>
-        <div className='row'>
-          <form onSubmit={this.handleSubmit} className='form'>
-            <div className='form-row'>
-              <div className='custom-file col'>
-                <input
-                  type='file'
-                  className='custom-file-input'
-                  id='customFile'
-                  onChange={this.handleFileChange}
-                />
-                <label className='custom-file-label' htmlFor='customFile'>
-                  Choose file
-                </label>
-              </div>
-            </div>
-            <div className='form-row'>
-              <div className='form-group'>
-                <select
-                  name='outputType'
-                  className='form-control'
-                  defaultValue={outputType}
-                  onChange={this.handleInputChange}>
-                  <option value='canvas'>Canvas</option>
-                </select>
-              </div>
-              <div className='form-group'>
-                {/* <label htmlFor='tileNumber'>Number of tiles</label> */}
-                <input
-                  id='tileNumber'
-                  name='tileNumber'
-                  type='number'
-                  className='form-control'
-                  placeholder='Number of tiles'
-                  onChange={this.handleInputChange}
-                  defaultValue={tileNumber}
-                  disabled
-                />
-              </div>
-            </div>
-            <div className='form-row'>
-              <div className='form-group col'>
-                <button type='submit' className='btn btn-primary'>
-                  Submit
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div className='row'>
-          <div id='imageContainer'></div>
-        </div>
-      </div>
+      <>
+        <Container maxWidth='lg'>
+          <Header></Header>
+          <Paper elevation={3} className={classes.content}>
+            <Form onSubmit={this.handleSubmit}></Form>
+          </Paper>
+        </Container>
+      </>
     );
   }
 }
 
-export default App;
+export default withStyles(styles)(App);
