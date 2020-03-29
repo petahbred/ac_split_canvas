@@ -52,8 +52,13 @@ class App extends React.Component {
 
     console.log({ file });
     const reader = new FileReader();
-    reader.addEventListener('load', () => {
-      splitImage(reader.result);
+    reader.addEventListener('load', async () => {
+      try {
+        const imagePieces = await splitImage(reader.result);
+        console.log({ imagePieces });
+      } catch (error) {
+        console.error(error);
+      }
     });
     reader.readAsDataURL(file);
   }

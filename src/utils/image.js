@@ -1,14 +1,27 @@
-export function splitImage(src, grid, gutter, callback) {
+/**
+ *
+ * @description Splits the image into equal squares fitting the squares on the shorter
+ * side.
+ *
+ * @export
+ * @param {string} src
+ * @param {number} grid
+ * @param {number} gutter
+ * @param {Function} callback
+ */
+export function splitImage(src, grid, gutter) {
   if (!src) {
     throw new Error('No src for the image was defined.');
   }
 
-  var image = new Image();
-  image.onload = () => {
-    callback(cutImageUp(image, grid, gutter));
-  };
-  image.setAttribute('crossOrigin', 'anonymous');
-  image.src = src;
+  return new Promise((resolve, reject) => {
+    var image = new Image();
+    image.onload = () => {
+      resolve(cutImageUp(image, grid, gutter));
+    };
+    image.setAttribute('crossOrigin', 'anonymous');
+    image.src = src;
+  });
 }
 
 export function cutImageUp(image, grid = 2, gutter = 15, margin = gutter) {
