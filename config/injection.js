@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {
-  pathToInjected
-} = require("./paths");
+const pathToInjected = path.resolve(__dirname, "injected");
 
 
 const loadGLTF = (fileName) => {
