@@ -2,16 +2,21 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import CardContent from '@material-ui/core/CardContent';
 
 import Header from 'components/header';
 import Form from 'components/form';
+import ImageDisplay from 'components/image_display';
 
 import { splitImage } from './utils/image';
 
 const styles = theme => ({
+  paper: {
+    marginTop: theme.spacing(2)
+  },
   content: {
-    marginTop: theme.spacing(10),
-    padding: '10px 15px'
+    marginTop: theme.spacing(10)
   }
 });
 
@@ -27,7 +32,8 @@ class App extends React.Component {
     this.state = {
       file: null,
       tileNumber: 2,
-      outputType: 'canvas'
+      outputType: 'canvas',
+      imagePieces: []
     };
   }
 
@@ -56,6 +62,9 @@ class App extends React.Component {
       try {
         const imagePieces = await splitImage(reader.result);
         console.log({ imagePieces });
+        this.setState({
+          imagePieces
+        });
       } catch (error) {
         console.error(error);
       }
@@ -65,13 +74,21 @@ class App extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { outputType, tileNumber, file } = this.state;
+    const { outputType, tileNumber, imagePieces } = this.state;
     return (
       <>
         <Container maxWidth='lg'>
           <Header></Header>
           <Paper elevation={3} className={classes.content}>
-            <Form onSubmit={this.handleSubmit}></Form>
+            <CardContent>
+              <Form onSubmit={this.handleSubmit}></Form>
+            </CardContent>
+          </Paper>
+          <Paper elevation={3} className={classes.paper}>
+            <CardContent>
+              <Typography variant='h5'>Result:</Typography>
+              <ImageDisplay imagePieces={imagePieces}></ImageDisplay>
+            </CardContent>
           </Paper>
         </Container>
       </>
