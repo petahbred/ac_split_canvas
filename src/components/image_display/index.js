@@ -11,17 +11,20 @@ const ImageDisplay = props => {
 
   const renderImages = imagePieces => {
     return imagePieces.map((imagePiece, index) => {
-      const { data: src, gutter, qrImage } = imagePiece;
+      const { gutter, qrImage } = imagePiece;
+
       return (
-        <img
-          key={`piece_${index}`}
-          alt={`piece_${index}`}
-          src={qrImage}
-          style={{
-            marginBottom: `${gutter}px`,
-            marginRight: `${gutter}px`
-          }}
-        />
+        <div key={`piece_${index}`}>
+          {/* <img src={src} alt={index} /> */}
+          <img
+            alt={`piece_${index}`}
+            src={qrImage}
+            style={{
+              marginBottom: `${gutter}px`,
+              marginRight: `${gutter}px`
+            }}
+          />
+        </div>
       );
     });
   };

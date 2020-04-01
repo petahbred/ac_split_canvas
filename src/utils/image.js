@@ -20,7 +20,7 @@ export function splitImage(src, grid, gutter) {
   return new Promise((resolve, reject) => {
     var image = new Image();
     image.onload = () => {
-      resolve(cutImageUp(image, grid, gutter));
+      resolve(Promise.all(cutImageUp(image, grid, gutter)));
     };
     image.setAttribute('crossOrigin', 'anonymous');
     image.src = src;
@@ -34,9 +34,9 @@ export function cutImageUp(image, grid = 2, gutter = 15, margin = gutter) {
   const cols = Math.floor(image.width / size);
   const rows = Math.floor(image.height / size);
 
-  console.log({ cols, rows });
+  console.log({ width: image.width, height: image.height, cols, rows, size });
 
-  var imagePieces = [];
+  const promises = [];
   let index = 1;
   for (var y = 0; y < rows; ++y) {
     for (var x = 0; x < cols; ++x) {
@@ -65,10 +65,10 @@ export function cutImageUp(image, grid = 2, gutter = 15, margin = gutter) {
 
       const cropHeight = cropWidth;
 
-      console.log(
-        { x, y },
-        { xPosition, yPosition, cropWidth, cropHeight, gutter }
-      );
+      // console.log(
+      //   { x, y },
+      //   { xPosition, yPosition, cropWidth, cropHeight, gutter }
+      // );
 
       context.drawImage(
         image,
@@ -81,12 +81,11 @@ export function cutImageUp(image, grid = 2, gutter = 15, margin = gutter) {
         canvas.width,
         canvas.height
       );
+
       /**
        * Prepare image for quantize.
        */
-      context.imageSmoothingEnabled = true;
-      context.imageSmoothingQuality = 'high';
-      const imageData = context.getImageData(0, 0, cropWidth, cropHeight);
+      const imageData = getImageData(canvas);
 
       const imageTool = new ImageTools();
       imageTool.quantize(imageData);
@@ -95,43 +94,36 @@ export function cutImageUp(image, grid = 2, gutter = 15, margin = gutter) {
       imageTool.creator = 'Me';
       imageTool.town = 'AnimalCrossing';
 
-      imagePieces.push({
-        gutter,
-        src: canvas.toDataURL(),
-        qrImage: QRGenerator(imageTool.draw.toString()),
-        data: imageData
-      });
+      const src = canvas.toDataURL();
+      const data = imageTool.draw.toString();
+
+      promises.push(
+        new Promise(async resolve => {
+          try {
+            const qrImage = await QRGenerator(data);
+            resolve({
+              gutter,
+              src,
+              data,
+              qrImage
+            });
+          } catch (error) {
+            console.error(error);
+          }
+        })
+      );
 
       index++;
     }
   }
+  console.log({ promises });
+  return promises;
+}
 
-  // imagePieces now contains data urls of all the pieces of the image
-
-  // load one piece onto the page
-  // const frag = document.createDocumentFragment();
-  // let container = document.createElement('div');
-  // container.style.display = 'flex';
-  // for (let i = 0; i < imagePieces.length; i++) {
-  //   const index = i + 1;
-  //   const data = imagePieces[i];
-  //   const img = document.createElement('img');
-  //   // img.classList.add('img-fluid');
-  //   img.style.flex = '0 1 0';
-  //   img.style.marginBottom = `${margin}px`;
-  //   img.style.marginRight = `${margin}px`;
-  //   img.src = data;
-
-  //   container.appendChild(img);
-  //   if (index % cols === 0) {
-  //     frag.appendChild(container);
-  //     container = document.createElement('div');
-  //     container.style.display = 'flex';
-  //   }
-  // }
-
-  // const imageContainer = document.querySelector('#imageContainer');
-  // imageContainer.appendChild(frag);
-
-  return imagePieces;
+export function getImageData(canvas) {
+  const preview = document.createElement('canvas');
+  const context = preview.getContext('2d');
+  context.imageSmoothingEnabled = true;
+  context.drawImage(canvas, 0, 0, 32, 32);
+  return context.getImageData(0, 0, 32, 32);
 }

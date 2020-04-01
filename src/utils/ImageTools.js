@@ -1,6 +1,8 @@
 import DrawingTool from './DrawingTool';
 
-const logger = console;
+const logger = {
+  info: () => {}
+};
 
 class ImageTools {
   constructor() {

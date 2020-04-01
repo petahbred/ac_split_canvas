@@ -56,11 +56,13 @@ class App extends React.Component {
       return;
     }
 
-    console.log({ file });
+    // TODO: Change to use input field.
+    const gridSize = 3;
+
     const reader = new FileReader();
     reader.addEventListener('load', async () => {
       try {
-        const imagePieces = await splitImage(reader.result);
+        const imagePieces = await splitImage(reader.result, gridSize);
         console.log({ imagePieces });
         this.setState({
           imagePieces
